@@ -21,25 +21,57 @@ resource "aws_vpc" "devops" {
   }
 }
 
-resource "aws_subnet" "main-us-east-1a" {
+resource "aws_subnet" "us-east-1a-subnet" {
   vpc_id     = aws_vpc.devops.id
   cidr_block = "10.0.1.0/24"
   availability_zone = "us-east-1a"
 
   tags = {
-    Name = "main-us-east-1a"
+    Name = "us-east-1a-subnet"
   }
 }
 
-resource "aws_subnet" "main-us-east-1b" {
+resource "aws_subnet" "us-east-1b-subnet" {
   vpc_id     = aws_vpc.devops.id
   cidr_block = "10.0.2.0/24"
   availability_zone = "us-east-1b"
 
   tags = {
-    Name = "main-us-east-1b"
+    Name = "us-east-1b-subnet"
   }
 }
+
+resource "aws_internet_gateway" "internet_gateway" {
+  vpc_id = aws_vpc.devops.id
+
+  tags = {
+    Name = "devops-internet-gateway"
+  }
+}
+
+resource "aws_route_table" "devops_route_table" {
+  vpc_id = aws_vpc.devops.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
+
+  tags = {
+    Name = "devops-route-table"
+  }
+}
+
+resource "aws_route_table_association" "subnet-association-a" {
+  subnet_id      = aws_subnet.us-east-1a-subnet.id
+  route_table_id = aws_route_table.devops_route_table.id
+}
+
+resource "aws_route_table_association" "subnet-association-b" {
+  subnet_id      = aws_subnet.us-east-1b-subnet.id
+  route_table_id = aws_route_table.devops_route_table.id
+}
+
 resource "aws_security_group" "security_group" {
  name   = "ecs-security-group"
  vpc_id = aws_vpc.devops.id
@@ -59,58 +91,4 @@ resource "aws_security_group" "security_group" {
    protocol    = "-1"
    cidr_blocks = ["0.0.0.0/0"]
  }
-}
-
-resource "aws_ecs_cluster" "ecs_devops_cluster" {
-  name = "devops_cluster"
-}
-
-resource "aws_ecs_cluster_capacity_providers" "example" {
-  cluster_name = aws_ecs_cluster.ecs_devops_cluster.name
-
-  capacity_providers = ["FARGATE"]
-
-  default_capacity_provider_strategy {
-    base              = 1
-    weight            = 100
-    capacity_provider = "FARGATE"
-  }
-}
-
-resource "aws_ecs_task_definition" "microservices" {
-  family = "microservices"
-  network_mode             = "awsvpc"
-  cpu       = 1024
-  memory    = 2048
-  requires_compatibilities = ["FARGATE"]
-  container_definitions = jsonencode([
-    {
-      name      = "products-service"
-      image     = "iribastrillo/products-service"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ]
-    },
-  ])
-}
-
-resource "aws_ecs_service" "products_service" {
-  name            = "products_service"
-  cluster         = aws_ecs_cluster.ecs_devops_cluster.id
-  task_definition = aws_ecs_task_definition.microservices.arn
-  desired_count   = 2
-
-  ordered_placement_strategy {
-    type  = "binpack"
-    field = "cpu"
-  }
-
-  network_configuration {
-    subnets = aws_subnet.main-us-east-1a.id
-    security_groups = aws_security_group.security_group.id
-  }
 }
