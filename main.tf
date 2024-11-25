@@ -79,13 +79,14 @@ resource "aws_ecs_cluster_capacity_providers" "example" {
 
 resource "aws_ecs_task_definition" "microservices" {
   family = "microservices"
+  network_mode             = "awsvpc"
+  cpu       = 1024
+  memory    = 2048
   requires_compatibilities = ["FARGATE"]
   container_definitions = jsonencode([
     {
       name      = "products-service"
       image     = "iribastrillo/products-service"
-      cpu       = 10
-      memory    = 512
       essential = true
       portMappings = [
         {
@@ -95,10 +96,21 @@ resource "aws_ecs_task_definition" "microservices" {
       ]
     },
   ])
-
-  volume {
-    name      = "products-service-storage"
-    host_path = "/ecs/products-service-storage"
-  }
 }
 
+resource "aws_ecs_service" "products_service" {
+  name            = "products_service"
+  cluster         = aws_ecs_cluster.ecs_devops_cluster.id
+  task_definition = aws_ecs_task_definition.microservices.arn
+  desired_count   = 2
+
+  ordered_placement_strategy {
+    type  = "binpack"
+    field = "cpu"
+  }
+
+  network_configuration {
+    subnets = aws_subnet.main-us-east-1a.id
+    security_groups = aws_security_group.security_group.id
+  }
+}
