@@ -48,3 +48,5 @@ La propuesta de este equipo es dirigir a la empresa hacia la adopción progresiv
 Como se detalló antes, parte de la solución radica en compartimentar el desarrollo del producto con una lógica que permita a pequeños equipos trabajar en forma eficiente en la entrega de valor para el cliente final. En este sentido, se propone a la empresa adoptar una arquitectura orientada a microservicios, pues este enfoque permitirá acotar el alcance del trabajo de cada equipo, minimizando solapamientos y retrabajos entre los diferentes equipos.
 
 ### La infraestructura en la nube
+
+![Diagrama de infraestructura]("assets/infra .png")
