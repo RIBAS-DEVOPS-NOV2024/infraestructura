@@ -49,4 +49,4 @@ Como se detalló antes, parte de la solución radica en compartimentar el desarr
 
 ### La infraestructura en la nube
 
-![Diagrama de infraestructura](/assets/images/"infra .png")
+![Diagrama de infraestructura]([/assets/images/"infra .png"](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/infra.png))
