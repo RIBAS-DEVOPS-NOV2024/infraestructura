@@ -49,4 +49,4 @@ Como se detalló antes, parte de la solución radica en compartimentar el desarr
 
 ### La infraestructura en la nube
 
-![Diagrama de infraestructura]("assets/infra .png")
+![Diagrama de infraestructura](/assets/images/"infra .png")
