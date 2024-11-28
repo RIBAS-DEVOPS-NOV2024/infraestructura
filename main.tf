@@ -180,6 +180,114 @@ resource "aws_lb_listener_rule" "devops-shipping-rule" {
   }
 }
 
+resource "aws_lb" "devops_alb_payments" {
+  name               = "devops-alb-payments"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.security_group.id]
+  subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb_target_group" "devops_tg_payments" {
+  name     = "devop-tg-payments"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.devops.id
+  target_type = "ip"
+
+  health_check {
+    path = "/payments"
+    port = 8080
+  }
+}
+
+resource "aws_lb_listener" "devops_listener_payments" {
+  load_balancer_arn = aws_lb.devops_alb_payments.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_payments.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "devops-payments-rule" {
+  listener_arn = aws_lb_listener.devops_listener_payments.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_payments.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/payments"]
+    }
+  }
+}
+
+resource "aws_lb" "devops_alb_orders" {
+  name               = "devops-alb-orders"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.security_group.id]
+  subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb_target_group" "devops_tg_orders" {
+  name     = "devop-tg-orders"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.devops.id
+  target_type = "ip"
+
+  health_check {
+    path = "/orders"
+    port = 8080
+  }
+}
+
+resource "aws_lb_listener" "devops_listener_orders" {
+  load_balancer_arn = aws_lb.devops_alb_orders.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_orders.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "devops-orders-rule" {
+  listener_arn = aws_lb_listener.devops_listener_orders.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_orders.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/orders"]
+    }
+  }
+}
+
 resource "aws_security_group" "security_group" {
  name   = "ecs-security-group"
  vpc_id = aws_vpc.devops.id
@@ -311,6 +419,12 @@ resource "aws_ecs_service" "orders_service" {
     
     force_new_deployment = true
 
+    load_balancer {
+      target_group_arn = aws_lb_target_group.devops_tg_orders.arn
+      container_name   = "orders"
+      container_port   = 8080
+    }
+
     network_configuration {
         subnets         = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
         security_groups = [aws_security_group.security_group.id]
@@ -333,6 +447,12 @@ resource "aws_ecs_service" "payments_service" {
     scheduling_strategy                = "REPLICA"
     
     force_new_deployment = true
+
+    load_balancer {
+      target_group_arn = aws_lb_target_group.devops_tg_payments.arn
+      container_name   = "payments"
+      container_port   = 8080
+    }
 
     network_configuration {
         subnets         = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
