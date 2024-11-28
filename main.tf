@@ -126,6 +126,60 @@ resource "aws_lb_listener_rule" "devops-products-rule" {
   }
 }
 
+resource "aws_lb" "devops_alb_shipping" {
+  name               = "devops-alb-shipping"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.security_group.id]
+  subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb_target_group" "devops_tg_shipping" {
+  name     = "devop-tg-shipping"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.devops.id
+  target_type = "ip"
+
+  health_check {
+    path = "/shipping/c"
+    port = 8080
+  }
+}
+
+resource "aws_lb_listener" "devops_listener_shipping" {
+  load_balancer_arn = aws_lb.devops_alb_shipping.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_shipping.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "devops-shipping-rule" {
+  listener_arn = aws_lb_listener.devops_listener_shipping.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.devops_tg_shipping.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/shipping/c"]
+    }
+  }
+}
+
 resource "aws_security_group" "security_group" {
  name   = "ecs-security-group"
  vpc_id = aws_vpc.devops.id
@@ -331,6 +385,12 @@ resource "aws_ecs_service" "shipping_service" {
     scheduling_strategy                = "REPLICA"
     
     force_new_deployment = true
+
+    load_balancer {
+      target_group_arn = aws_lb_target_group.devops_tg_shipping.arn
+      container_name   = "shipping"
+      container_port   = 8080
+    }
 
     network_configuration {
         subnets         = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
