@@ -568,3 +568,47 @@ resource "aws_api_gateway_stage" "products_stage" {
   rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
   stage_name    = "${terraform.workspace}"
 }
+
+resource "aws_api_gateway_resource" "shipping_resource" {
+  parent_id   = aws_api_gateway_rest_api.devops_api_rest.root_resource_id
+  path_part   = "shipping"
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+}
+
+resource "aws_api_gateway_method" "get_shipping" {
+  authorization = "NONE"
+  http_method   = "GET"
+  resource_id   = aws_api_gateway_resource.shipping_resource.id
+  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+}
+
+resource "aws_api_gateway_integration" "shipping_integration" {
+  http_method = aws_api_gateway_method.get_shipping.http_method
+  resource_id = aws_api_gateway_resource.shipping_resource.id
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+  integration_http_method = "GET"
+  type        = "HTTP"
+  uri ="http://${aws_lb.devops_alb_shipping.dns_name}:8080/shipping/c"
+}
+
+resource "aws_api_gateway_deployment" "shipping_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.shipping_resource.id,
+      aws_api_gateway_method.get_shipping.id,
+      aws_api_gateway_integration.shipping_integration.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "shipping_stage" {
+  deployment_id = aws_api_gateway_deployment.shipping_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+  stage_name    = "${terraform.workspace}-shipping"
+}
