@@ -296,9 +296,7 @@ resource "aws_security_group" "security_group" {
    from_port   = 0
    to_port     = 0
    protocol    = -1
-   self        = "false"
    cidr_blocks = ["0.0.0.0/0"]
-   description = "any"
  }
 
  egress {
@@ -521,4 +519,52 @@ resource "aws_ecs_service" "shipping_service" {
     depends_on = [
         aws_ecs_task_definition.devops_shipping_task
     ]
+}
+
+resource "aws_api_gateway_rest_api" "devops_api_rest" {
+  name = "${terraform.workspace}-devops-api-rest"
+}
+
+resource "aws_api_gateway_resource" "products_resource" {
+  parent_id   = aws_api_gateway_rest_api.devops_api_rest.root_resource_id
+  path_part   = "products"
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+}
+
+resource "aws_api_gateway_method" "get_products" {
+  authorization = "NONE"
+  http_method   = "GET"
+  resource_id   = aws_api_gateway_resource.products_resource.id
+  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+}
+
+resource "aws_api_gateway_integration" "products_integration" {
+  http_method = aws_api_gateway_method.get_products.http_method
+  resource_id = aws_api_gateway_resource.products_resource.id
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+  integration_http_method = "GET"
+  type        = "HTTP"
+  uri ="http://${aws_lb.devops_alb_products.dns_name}:8080/products"
+}
+
+resource "aws_api_gateway_deployment" "products_deployment" {
+  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+
+  triggers = {
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.products_resource.id,
+      aws_api_gateway_method.get_products.id,
+      aws_api_gateway_integration.products_integration.id,
+    ]))
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_api_gateway_stage" "products_stage" {
+  deployment_id = aws_api_gateway_deployment.products_deployment.id
+  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+  stage_name    = "${terraform.workspace}"
 }
