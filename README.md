@@ -50,3 +50,13 @@ Como se detalló antes, parte de la solución radica en compartimentar el desarr
 ### La infraestructura en la nube
 
 ![Diagrama de infraestructura](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/infra.png)
+
+#### Control de versiones y repositorios
+
+Se empleará GitHub para disponibilizar un repositorio por cada microservicio que desarrolla el equipo de backend, otro para el equipo de frontend y otro para el equipo de operaciones. De esta forma, cada equipo definirá interfaces claras para interactuar con sus piezas del producto y podrá hacer su servicio accesible al resto como servicio web RESTful. El frontend, sobre el que impactan decisiones de diseño, UI/UX (user interface y user experience, respectivamente), entre otros, tiene un ciclo de vida diferente a, por ejemplo, los microservicios del backend, por lo que, al separar cada equipo y su porción de software en el que trabajar, podrán concentrarse en el desarrollo de la solución de los problemas concretos de su dominio y colaborar más eficazmente en aquellas partes comunes.
+
+##### Flujos de trabajo: trunk based y gitflow
+
+![Diagrama de trunkbased](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/trunkbased.png)
+
+![Diagrama de gitflow](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/gitflow.png)
