@@ -57,6 +57,7 @@ Se empleará GitHub para disponibilizar un repositorio por cada microservicio qu
 
 ##### Flujos de trabajo: trunk based y gitflow
 
-![Diagrama de trunkbased](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/trunkbased.png)
+![Diagrama de trunkbased](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/trunbkbased.png)
+
 
 ![Diagrama de gitflow](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/gitflow.png)
