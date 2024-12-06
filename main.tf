@@ -17,7 +17,7 @@ resource "aws_vpc" "devops" {
   instance_tenancy = "default"
 
   tags = {
-    Name = "devops"
+    Name = "${terraform.workspace}-devops"
   }
 }
 
@@ -25,7 +25,7 @@ resource "aws_internet_gateway" "devops_internet_gateway" {
   vpc_id = aws_vpc.devops.id
 
   tags = {
-    Name = "devops_internet_gateway"
+    Name = "${terraform.workspace}-devops-internet-gateway"
   }
 }
 
@@ -35,7 +35,7 @@ resource "aws_subnet" "us_east_1a_subnet" {
   availability_zone = "us-east-1a"
 
   tags = {
-    Name = "us_east_1a_subnet"
+    Name = "${terraform.workspace}-us-east-1a-subnet"
   }
 }
 
@@ -45,7 +45,7 @@ resource "aws_subnet" "us_east_1b_subnet" {
   availability_zone = "us-east-1b"
 
   tags = {
-    Name = "us_east_1b_subnet"
+    Name = "${terraform.workspace}-us-east-1b-subnet"
   }
 }
 
@@ -73,21 +73,16 @@ resource "aws_route_table_association" "subnet-association-b" {
 }
 
 resource "aws_lb" "devops_alb_products" {
-  name               = "devops-alb-products"
+  name               = "${terraform.workspace}-devops-alb-products"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.security_group.id]
   subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
-
   enable_deletion_protection = false
-
-  tags = {
-    Environment = "production"
-  }
 }
 
 resource "aws_lb_target_group" "devops_tg_products" {
-  name     = "devop-tg-products"
+  name     = "${terraform.workspace}-devop-tg-products"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.devops.id
@@ -127,21 +122,17 @@ resource "aws_lb_listener_rule" "devops-products-rule" {
 }
 
 resource "aws_lb" "devops_alb_shipping" {
-  name               = "devops-alb-shipping"
+  name               = "${terraform.workspace}-devops-alb-shipping"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.security_group.id]
   subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
 
   enable_deletion_protection = false
-
-  tags = {
-    Environment = "production"
-  }
 }
 
 resource "aws_lb_target_group" "devops_tg_shipping" {
-  name     = "devop-tg-shipping"
+  name     = "${terraform.workspace}-devop-tg-shipping"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.devops.id
@@ -181,21 +172,17 @@ resource "aws_lb_listener_rule" "devops-shipping-rule" {
 }
 
 resource "aws_lb" "devops_alb_payments" {
-  name               = "devops-alb-payments"
+  name               = "${terraform.workspace}-devops-alb-payments"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.security_group.id]
   subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
 
   enable_deletion_protection = false
-
-  tags = {
-    Environment = "production"
-  }
 }
 
 resource "aws_lb_target_group" "devops_tg_payments" {
-  name     = "devop-tg-payments"
+  name     = "${terraform.workspace}-devop-tg-payments"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.devops.id
@@ -235,21 +222,17 @@ resource "aws_lb_listener_rule" "devops-payments-rule" {
 }
 
 resource "aws_lb" "devops_alb_orders" {
-  name               = "devops-alb-orders"
+  name               = "${terraform.workspace}-devops-alb-orders"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.security_group.id]
   subnets            = [aws_subnet.us_east_1a_subnet.id, aws_subnet.us_east_1b_subnet.id]
 
   enable_deletion_protection = false
-
-  tags = {
-    Environment = "production"
-  }
 }
 
 resource "aws_lb_target_group" "devops_tg_orders" {
-  name     = "devop-tg-orders"
+  name     = "${terraform.workspace}-devop-tg-orders"
   port     = 8080
   protocol = "HTTP"
   vpc_id   = aws_vpc.devops.id
@@ -289,7 +272,7 @@ resource "aws_lb_listener_rule" "devops-orders-rule" {
 }
 
 resource "aws_security_group" "security_group" {
- name   = "ecs-security-group"
+ name   = "${terraform.workspace}-ecs-security-group"
  vpc_id = aws_vpc.devops.id
 
  ingress {
@@ -334,8 +317,17 @@ resource "aws_ecs_task_definition" "devops_orders_task" {
                 hostPort      = 8080
                 }
             ]
+            environment = [
+                {
+                    name  = "APP_ARGS",
+                    value = "${aws_apigatewayv2_stage.devops_products_stage.invoke_url}/payments ${aws_apigatewayv2_stage.devops_products_stage.invoke_url}/shipping ${aws_apigatewayv2_stage.devops_products_stage.invoke_url}/products"
+                },
+            ]
         }
     ])
+    depends_on = [
+        aws_apigatewayv2_stage.devops_products_stage
+      ]
 }
 
 resource "aws_ecs_task_definition" "devops_products_task" {
@@ -521,138 +513,75 @@ resource "aws_ecs_service" "shipping_service" {
     ]
 }
 
-resource "aws_api_gateway_rest_api" "devops_api_rest" {
-  name = "${terraform.workspace}-devops-api-rest"
+##########################  API GATEWAY ############################
+
+resource "aws_apigatewayv2_api" "devops_api_gateway" {
+  name                       = "${terraform.workspace}-devops-api-gateway"
+  protocol_type              = "HTTP"
 }
 
-resource "aws_api_gateway_resource" "products_resource" {
-  parent_id   = aws_api_gateway_rest_api.devops_api_rest.root_resource_id
-  path_part   = "products"
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+##########################  PRODUCTS    ############################
+
+resource "aws_apigatewayv2_integration" "devops_products_integration" {
+  api_id           = aws_apigatewayv2_api.devops_api_gateway.id
+  integration_type = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = "http://${aws_lb.devops_alb_products.dns_name}:8080/products"
 }
 
-resource "aws_api_gateway_method" "get_products" {
-  authorization = "NONE"
-  http_method   = "GET"
-  resource_id   = aws_api_gateway_resource.products_resource.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+resource "aws_apigatewayv2_route" "devops_products_integration_route" {
+  api_id    = aws_apigatewayv2_api.devops_api_gateway.id
+  route_key = "GET /products"
+  target = "integrations/${aws_apigatewayv2_integration.devops_products_integration.id}"
 }
 
-resource "aws_api_gateway_integration" "products_integration" {
-  http_method = aws_api_gateway_method.get_products.http_method
-  resource_id = aws_api_gateway_resource.products_resource.id
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-  integration_http_method = "GET"
-  type        = "HTTP"
-  uri ="http://${aws_lb.devops_alb_products.dns_name}:8080/products"
+resource "aws_apigatewayv2_integration" "devops_product_integration" {
+  api_id           = aws_apigatewayv2_api.devops_api_gateway.id
+  integration_type = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = "http://${aws_lb.devops_alb_products.dns_name}:8080/products/{productID}"
 }
 
-resource "aws_api_gateway_deployment" "products_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-
-  triggers = {
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.products_resource.id,
-      aws_api_gateway_method.get_products.id,
-      aws_api_gateway_integration.products_integration.id,
-    ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
+resource "aws_apigatewayv2_route" "devops_product_integration_route" {
+  api_id    = aws_apigatewayv2_api.devops_api_gateway.id
+  route_key = "GET /products/{productID}"
+  target = "integrations/${aws_apigatewayv2_integration.devops_product_integration.id}"
 }
 
-resource "aws_api_gateway_stage" "products_stage" {
-  deployment_id = aws_api_gateway_deployment.products_deployment.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
-  stage_name    = "${terraform.workspace}"
+##########################  SHIPPING  ##############################
+
+resource "aws_apigatewayv2_integration" "devops_shipping_integration" {
+  api_id           = aws_apigatewayv2_api.devops_api_gateway.id
+  integration_type = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = "http://${aws_lb.devops_alb_shipping.dns_name}:8080/shipping/c"
 }
 
-resource "aws_api_gateway_resource" "shipping_resource" {
-  parent_id   = aws_api_gateway_rest_api.devops_api_rest.root_resource_id
-  path_part   = "shipping"
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+resource "aws_apigatewayv2_route" "devops_shipping_integration_route" {
+  api_id    = aws_apigatewayv2_api.devops_api_gateway.id
+  route_key = "GET /shipping/c"
+  target = "integrations/${aws_apigatewayv2_integration.devops_shipping_integration.id}"
 }
 
-resource "aws_api_gateway_method" "get_shipping" {
-  authorization = "NONE"
-  http_method   = "GET"
-  resource_id   = aws_api_gateway_resource.shipping_resource.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
+##########################  PAYMENTS  ##############################
+
+resource "aws_apigatewayv2_integration" "devops_payments_integration" {
+  api_id           = aws_apigatewayv2_api.devops_api_gateway.id
+  integration_type = "HTTP_PROXY"
+  integration_method = "GET"
+  integration_uri    = "http://${aws_lb.devops_alb_payments.dns_name}:8080/payments"
 }
 
-resource "aws_api_gateway_integration" "shipping_integration" {
-  http_method = aws_api_gateway_method.get_shipping.http_method
-  resource_id = aws_api_gateway_resource.shipping_resource.id
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-  integration_http_method = "GET"
-  type        = "HTTP"
-  uri ="http://${aws_lb.devops_alb_shipping.dns_name}:8080/shipping/c"
+resource "aws_apigatewayv2_route" "devops_payments_integration_route" {
+  api_id    = aws_apigatewayv2_api.devops_api_gateway.id
+  route_key = "GET /payments"
+  target = "integrations/${aws_apigatewayv2_integration.devops_payments_integration.id}"
 }
 
-resource "aws_api_gateway_deployment" "shipping_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
+##########################  STAGE AND DEPLOYMENT    ################
 
-  triggers = {
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.shipping_resource.id,
-      aws_api_gateway_method.get_shipping.id,
-      aws_api_gateway_integration.shipping_integration.id,
-    ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_api_gateway_stage" "shipping_stage" {
-  deployment_id = aws_api_gateway_deployment.shipping_deployment.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
-  stage_name    = "${terraform.workspace}-shipping"
-}
-
-resource "aws_api_gateway_resource" "orders_resource" {
-  parent_id   = aws_api_gateway_rest_api.devops_api_rest.root_resource_id
-  path_part   = "orders"
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-}
-
-resource "aws_api_gateway_method" "get_orders" {
-  authorization = "NONE"
-  http_method   = "GET"
-  resource_id   = aws_api_gateway_resource.orders_resource.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
-}
-
-resource "aws_api_gateway_integration" "orders_integration" {
-  http_method = aws_api_gateway_method.get_orders.http_method
-  resource_id = aws_api_gateway_resource.orders_resource.id
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-  integration_http_method = "GET"
-  type        = "HTTP"
-  uri ="http://${aws_lb.devops_alb_orders.dns_name}:8080/orders"
-}
-
-resource "aws_api_gateway_deployment" "orders_deployment" {
-  rest_api_id = aws_api_gateway_rest_api.devops_api_rest.id
-
-  triggers = {
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.orders_resource.id,
-      aws_api_gateway_method.get_orders.id,
-      aws_api_gateway_integration.orders_integration.id,
-    ]))
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_api_gateway_stage" "orders_stage" {
-  deployment_id = aws_api_gateway_deployment.orders_deployment.id
-  rest_api_id   = aws_api_gateway_rest_api.devops_api_rest.id
-  stage_name    = "${terraform.workspace}-orders"
+resource "aws_apigatewayv2_stage" "devops_products_stage" {
+  api_id = aws_apigatewayv2_api.devops_api_gateway.id
+  name   = "${terraform.workspace}"
+  auto_deploy = true
 }
