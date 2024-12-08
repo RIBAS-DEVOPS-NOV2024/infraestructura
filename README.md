@@ -61,7 +61,7 @@ Se propone, en el pipeline de integración:
 
 ![Diagrama de integración y despliegue continuos](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/CICD.png)
 
-#### El funcionamiento del pipeline
+#### 1.3.2.1. El funcionamiento del pipeline
 
 Para hacer esta integración se empleará Github Actions, donde se definirá el pipeline de integración.
 
@@ -102,6 +102,20 @@ Para atacar los problemas de la organización e impulsar la metodología DevOps 
 Por otro lado, se propone emplear GitFlow como práctica para el desarrollo de los demás componentes a desarrollar, a saber: el backend y el frontend. Se propone GitFlow pues permite desarrollar un producto que se puede ajustar ciclos de publicación programados, que necesitan varias confirmaciones y que necesitan pasar por varios procesos de validación antes de ser entregados al cliente en producción.
 
 ![Diagrama de gitflow](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/gitflow.png)
+
+### 1.3.4. Tablero Kanban
+
+Para organizar el trabajo a realizar durante el obligatorio se empleó ClickUp.com para implementar un tablero Kanban donde se definieron varios estados posibles para las tareas: PENDIENTE, EN PROCESO, BLOQUEADO, EN REVISIÓN y COMPLETADO.
+
+Primera etapa de trabajo:
+
+![Kanban 1](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/kanban/1.png)
+
+Mitad y cierre del proyecto:
+
+![Kanban 1](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/kanban/2.png)
+
+![Kanban 1](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/kanban/3.png)
 
 ## 2. Conclusiones
 
