@@ -134,6 +134,15 @@ Mitad y cierre del proyecto:
 
 ### 2.1. Limitaciones
 
+Si bien la arquitectura en la nube funciona como primer prototipo de implementación y como disparador para la implementación DevOps en la empresa, es necesario señalar algunas limitaciones del modelo de arquitectura que se terminó por definir:
+
+En primer lugar, en la VPC no se definen redes privadas y en la práctica los ALB serían accesibles desde Internet a través de sus IP's públicas. Si bien la funcionalidad a través de la API Gateway es accesible, conceptualmente la implementación no es sólida, pues expone puntos de acceso a recursos por vías diferentes a los de la API Gateway. Idealmente, todos los recusos de la VPC, salvo los estrictamente necesarios, deberían estar asegurados detrás de redes privadas. Esto no solo sería conceptualmente consecuente con las intenciones iniciales (de exponer todo el cluster de microservicios a través de un solo punto de acceso), sino también sería más seguro.
+
+Por otro lado, también se debe destacar que el acceso a los ALB se realiza directamente a través de su dirección pública desde la API Gateway. Esto no es ideal, no solo por lo discutido en el párrafo anterior, sino porque debería realizarse a través de una conexión privada dentro la de la VPC. En términos simples, cuando un microservicio, como Orders, solicita los productos al microservicio Products, debe realizarlo a través de una solicitud que sale de la VPC hacia Internet para volver a entrar a la VPC a través de la API Gateway. Para lograr que esto no sea así, se debería implementar la comunicación de la API Gateway con cada ALB a través de un VPC Link que permita conectar recursos dentro de la red privada sin necesidad de salir a Internet. De nuevo, no solo sería conceptualmente adecuado, sino además más seguro, pues ese tráfico entre microservicios se podría mantener absolutamente privado y aislado dentro de la VPC.
+
+Estas limitaciones se debieron principalmente a limitaciones de tiempo en la implementación y recursos en AWS Academy, que condujeron a definir un mínimo producto viable para la primera etapa de implementación.
+
 ### 2.2. Mejoras futuras
 
+En función de las limitaciones discutidas en la sección anterior, se propone una  segunda etapa de revisión de la arquitectura, más correcta y segura para la organización. Véase que en el siguiente diagrama se agregan dos subredes públicas y dos privadas (contrario a las dos públicas que se implementaron), en las que se implementan una NAT Gateway que permita a los contenedores el acceso a Internet (necesario para obtener las imágenes de los repositorios en Docker Hub) y se definen los microservicios allí dentro. Luego, a través de VPC Links se conectan estos microservicios a la API Gateway para ser consumidos desde Internet.
 
