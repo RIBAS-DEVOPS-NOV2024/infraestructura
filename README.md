@@ -59,6 +59,8 @@ Se propone, en el pipeline de integración:
 4. Construir el contenedor a desplegar en producción.
 5. Subir la imagen del contenedor probado a un repositorio de Docker Hub, desde donde los servicios de Elastic Container Service la tomará para construir los servicios.
 
+![Diagrama de integración y despliegue continuos](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/CICD.png)
+
 ###   1.3.3. La infraestructura en la nube
 
 Se determinó una infraestructura que, en términos generales, según el diagrama, cuenta con:
