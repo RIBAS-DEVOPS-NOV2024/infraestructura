@@ -87,6 +87,8 @@ Se determinó una infraestructura que, en términos generales, según el diagram
 
 ![Diagrama de infraestructura](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/infra.png)
 
+#### 1.3.3.1. Terraform: infraestructura como código
+
 ####   1.3.3. Control de versiones y repositorios
 
 Se empleará GitHub para disponibilizar un repositorio por cada microservicio que desarrolla el equipo de backend, otro para el equipo de frontend y otro para el equipo de operaciones. De esta forma, cada equipo definirá interfaces claras para interactuar con sus piezas del producto y podrá hacer su servicio accesible al resto como servicio web RESTful. El frontend, sobre el que impactan decisiones de diseño, UI/UX (user interface y user experience, respectivamente), entre otros, tiene un ciclo de vida diferente a, por ejemplo, los microservicios del backend, por lo que, al separar cada equipo y su porción de software en el que trabajar, podrán concentrarse en el desarrollo de la solución de los problemas concretos de su dominio y colaborar más eficazmente en aquellas partes comunes.
@@ -100,3 +102,11 @@ Para atacar los problemas de la organización e impulsar la metodología DevOps 
 Por otro lado, se propone emplear GitFlow como práctica para el desarrollo de los demás componentes a desarrollar, a saber: el backend y el frontend. Se propone GitFlow pues permite desarrollar un producto que se puede ajustar ciclos de publicación programados, que necesitan varias confirmaciones y que necesitan pasar por varios procesos de validación antes de ser entregados al cliente en producción.
 
 ![Diagrama de gitflow](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/gitflow.png)
+
+## 2. Conclusiones
+
+### 2.1. Limitaciones
+
+### 2.2. Mejoras futuras
+
+
