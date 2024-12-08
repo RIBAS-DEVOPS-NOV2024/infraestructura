@@ -146,3 +146,5 @@ Estas limitaciones se debieron principalmente a limitaciones de tiempo en la imp
 
 En función de las limitaciones discutidas en la sección anterior, se propone una  segunda etapa de revisión de la arquitectura, más correcta y segura para la organización. Véase que en el siguiente diagrama se agregan dos subredes públicas y dos privadas (contrario a las dos públicas que se implementaron), en las que se implementan una NAT Gateway que permita a los contenedores el acceso a Internet (necesario para obtener las imágenes de los repositorios en Docker Hub) y se definen los microservicios allí dentro. Luego, a través de VPC Links se conectan estos microservicios a la API Gateway para ser consumidos desde Internet.
 
+![Kanban 1](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/implementacion_futura.png)
+
