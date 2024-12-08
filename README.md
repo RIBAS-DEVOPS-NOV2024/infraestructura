@@ -103,7 +103,20 @@ Por otro lado, se propone emplear GitFlow como práctica para el desarrollo de l
 
 ![Diagrama de gitflow](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/gitflow.png)
 
-### 1.3.4. Tablero Kanban
+### 1.3.4. Tecnologías aplicadas
+
+Para implementar el método DevOps en esta primera etapa se eligió:
+
+1. Github para definir los repositorios de código.
+2. Github Actions como herramienta para CI/CD.
+3. AWS Elastic Container Service como orquestador.
+4. Terraform para la infraestructura como código.
+5. Sonar Cloud para el análisis de código estático.
+6. Newman/Postman para realizar pruebas sobre los microserivicios.
+7. React como el servicio Frontend.
+8. API Gateway como servicio serverless en AWS.
+
+### 1.3.5. Tablero Kanban
 
 Para organizar el trabajo a realizar durante el obligatorio se empleó ClickUp.com para implementar un tablero Kanban donde se definieron varios estados posibles para las tareas: PENDIENTE, EN PROCESO, BLOQUEADO, EN REVISIÓN y COMPLETADO.
 
