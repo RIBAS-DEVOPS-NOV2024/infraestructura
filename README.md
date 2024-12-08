@@ -47,7 +47,19 @@ La propuesta de este equipo es dirigir a la empresa hacia la adopción progresiv
 
 Como se detalló antes, parte de la solución radica en compartimentar el desarrollo del producto con una lógica que permita a pequeños equipos trabajar en forma eficiente en la entrega de valor para el cliente final. En este sentido, se propone a la empresa adoptar una arquitectura orientada a microservicios, pues este enfoque permitirá acotar el alcance del trabajo de cada equipo, minimizando solapamientos y retrabajos entre los diferentes equipos.
 
-###   1.3.2. La infraestructura en la nube
+### 1.3.2. Integración y despliegue continuos
+
+Parte del problema de la organización es la falta de trabajo integrado de varios de los equipos de desarrollo. Se propone diseñar un pipeline de trabajo que permita integrar, construir, probar y desplegar continuamente los nuevos cambios incorporados por cada equipo. De esta manera se logrará detectar en forma temprana las posibles fallas del sistema, fallas de integración y usabilidad al tiempo que permita entregar valor en forma constante a los clientes. 
+
+Se propone, en el pipeline de integración:
+
+1. Construir la aplicación para poder ejecutar pruebas sobre ella antes del despliegue a producción.
+2. Probar cada endpoint de los microservicios utilizando Postman para verificar que la aplicación responde como se espera.
+3. Analizar la calidad del código entregado empleando SonarCloud para detectar errores y defectos en él.
+4. Construir el contenedor a desplegar en producción.
+5. Subir la imagen del contenedor probado a un repositorio de Docker Hub, desde donde los servicios de Elastic Container Service la tomará para construir los servicios.
+
+###   1.3.3. La infraestructura en la nube
 
 Se determinó una infraestructura que, en términos generales, según el diagrama, cuenta con:
 
