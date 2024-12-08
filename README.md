@@ -109,6 +109,10 @@ Para lograr el manejo de diferentes ambientes se deben emplear diferentes worksp
 
 Se empleará GitHub para disponibilizar un repositorio por cada microservicio que desarrolla el equipo de backend, otro para el equipo de frontend y otro para el equipo de operaciones. De esta forma, cada equipo definirá interfaces claras para interactuar con sus piezas del producto y podrá hacer su servicio accesible al resto como servicio web RESTful. El frontend, sobre el que impactan decisiones de diseño, UI/UX (user interface y user experience, respectivamente), entre otros, tiene un ciclo de vida diferente a, por ejemplo, los microservicios del backend, por lo que, al separar cada equipo y su porción de software en el que trabajar, podrán concentrarse en el desarrollo de la solución de los problemas concretos de su dominio y colaborar más eficazmente en aquellas partes comunes.
 
+Para gestionar los repositorios se creó una organización en la que configuraron los diferentes repositorios para cada microservicio. Para ver más en detalle cada repositorio visitar el siguiente enlace:
+
+[Enlace a la organización y repositorios para la implementación](https://github.com/RIBAS-DEVOPS-NOV2024)
+
 #####     1.3.3.1. Flujos de trabajo: trunk based y gitflow
 
 Para atacar los problemas de la organización e impulsar la metodología DevOps en la empresa, se propone separar cada microservicio en un repositorio disponible para cada equipo de desarrollo respectivamente. La infraestructura que se propone, implementada como código a través de Terraform, se trabajaría con una práctica de gestión de versiónes tipo trunk based, ya que simplifica las fases de fusión e integración. Esta práctica consiste en la creación de ramas de corta duración, sobre la que un pequeño grupo de desarrolladores trabaja en features que luego integra en una rama principal. Las confirmaciones también son más breves, por lo que el desarrollo de la infraestructura y la disponibilización de recursos de cómputo será más ágil que en un práctica de Gitflow.
