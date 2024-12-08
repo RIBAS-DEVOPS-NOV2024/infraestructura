@@ -61,6 +61,18 @@ Se propone, en el pipeline de integración:
 
 ![Diagrama de integración y despliegue continuos](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/CICD.png)
 
+#### El funcionamiento del pipeline
+
+Para hacer esta integración se empleará Github Actions, donde se definirá el pipeline de integración.
+
+En el primer paso, **Set up JDK 17 and build**, se instalan las dependencias necesarias para poder construir la imagen. Tras eso, el paso **Endpoint testing via Newman/Postman**, instala las dependencias para poder testear los endpoints del microservicio con Newman/Postman y se realizan los tests. De esta manera, se verifica que la aplicación se comporta como se espera incluso tras sufrir adiciones o sustracciones en el código.
+
+Una vez  probada la aplicación en funcionamiento, se analiza el código estáticamente para detectar posibles fallas y malas prácticas en el paso **Static code analysis w/ Sonar  Cloud**:
+
+Finalmente, se contruye la imagen del contenedor probado en los pasos **Build Docker container** y **Push Docker image**:
+
+Una vez en el repositorio de **Docker Hub**, el **Elastic Container Service** en AWS podrá construir y deplegar el servicio y dejarlo disponible a Internet a través de una API pública implementada con **API Gateway**.
+
 ###   1.3.3. La infraestructura en la nube
 
 Se determinó una infraestructura que, en términos generales, según el diagrama, cuenta con:
