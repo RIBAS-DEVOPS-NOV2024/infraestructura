@@ -1,0 +1,54 @@
+# This workflow is written specifically for Jam3/nextjs-boilerplate
+# It uploads all contents inside the ./out/ folder generated on build:prod:static process to an AWS S3 account
+
+name: S3 deploy
+
+on:
+  push:
+    branches:
+      - develop
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 5
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+        
+      - name: Install npm packages
+        run: npm install
+        working-directory: ./frontend 
+
+      - name: Perform tests
+        run: npm run test
+        working-directory: ./frontend 
+
+      - name: Build app
+        run: npm run build
+        working-directory: ./frontend 
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{secrets.AWS_DEFAULT_REGION}}
+
+      - name: To S3
+        run: ./.github/workflows/scripts/deploy.sh
+        shell: bash
+        env:
+          S3_ORIGIN_BUCKET: ${{ secrets.S3_ORIGIN_BUCKET }}

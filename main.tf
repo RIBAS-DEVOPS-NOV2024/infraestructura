@@ -585,3 +585,13 @@ resource "aws_apigatewayv2_stage" "devops_products_stage" {
   name   = "${terraform.workspace}"
   auto_deploy = true
 }
+
+##########################  S3 BUCKET    ############################
+
+resource "aws_s3_bucket" "s3-Bucket" {
+  bucket = "${terraform.workspace}-devops-bucket"
+
+  tags = {
+    Name        = "${terraform.workspace}-devops-bucket"
+  }
+}
