@@ -69,15 +69,15 @@ En el primer paso, **Set up JDK 17 and build**, se instalan las dependencias nec
 
 Una vez  probada la aplicación en funcionamiento, se analiza el código estáticamente para detectar posibles fallas y malas prácticas en el paso **Static code analysis w/ Sonar  Cloud**:
 
-![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/sonarcloud.png)
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud.png)
 
 Como se puede observar, en el caso del microservicio de productos, no existen puntos a mejorar de acuerdo al análisis de SonarCloud:
 
-![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/sonarcloud_products_passed_tests.png)
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud_products_passed_tests.png)
 
 Sin embargo, al correr los análisis sobre el código del microservicio de órdenes, se puede observar cómo ese análisis detecta justamente uno de los problemas por los cuales este microservicio no puede funcionar sin los demás. Es decir, el análisis de código estático detecta el acoplamiento entre estos servicios, pues ell error NullPointerException se arroja justamente cuando las órdenes no pueden acceder a los productos.
 
-![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/sonarcloud_orders_failed_tests.png)
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud_orders_failed_tests.png)
 
 Finalmente, se contruye la imagen del contenedor probado en los pasos **Build Docker container** y **Push Docker image**:
 
