@@ -69,7 +69,19 @@ En el primer paso, **Set up JDK 17 and build**, se instalan las dependencias nec
 
 Una vez  probada la aplicación en funcionamiento, se analiza el código estáticamente para detectar posibles fallas y malas prácticas en el paso **Static code analysis w/ Sonar  Cloud**:
 
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud.png)
+
+Como se puede observar, en el caso del microservicio de productos, no existen puntos a mejorar de acuerdo al análisis de SonarCloud:
+
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud_products_passed_tests.png)
+
+Sin embargo, al correr los análisis sobre el código del microservicio de órdenes, se puede observar cómo ese análisis detecta justamente uno de los problemas por los cuales este microservicio no puede funcionar sin los demás. Es decir, el análisis de código estático detecta el acoplamiento entre estos servicios, pues ell error NullPointerException se arroja justamente cuando las órdenes no pueden acceder a los productos.
+
+![Screenshot SonarCloud project dashboard](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/evidencia/pipeline/sonarcloud_orders_failed_tests.png)
+
 Finalmente, se contruye la imagen del contenedor probado en los pasos **Build Docker container** y **Push Docker image**:
+
+![Diagrama de infraestructura](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/dockerhub.png)
 
 Una vez en el repositorio de **Docker Hub**, el **Elastic Container Service** en AWS podrá construir y deplegar el servicio y dejarlo disponible a Internet a través de una API pública implementada con **API Gateway**.
 
@@ -88,6 +100,10 @@ Se determinó una infraestructura que, en términos generales, según el diagram
 ![Diagrama de infraestructura](https://github.com/RIBAS-DEVOPS-NOV2024/infraestructura/blob/main/assets/infra.png)
 
 #### 1.3.3.1. Terraform: infraestructura como código
+
+Para implementar la infraestructura se propone mantener una sola fuente de verdad para determinar los recursos que la organización dispone para ofrecer sus servicios a los clientes. Terraform permite en forma declarativa definir qué recursos en la nube se dispondrán y con qué configuraciones se deben iniciar. De esta manera, a través de una sola herramienta el equipo de infraestructura puede lanzar recursos para diferentes espacios: el de desarrollo, el código productivo y el de testeo.
+
+Para lograr el manejo de diferentes ambientes se deben emplear diferentes workspaces, pues cada recurso en main.tf está prefijado con la variable terraform.workspace para distinguir los recursos de cada ambiente por un nombre único. Para lanzar el ambiente de testing bastaría con ejecutar __terraform worskpace select testing__ y con ello Terraform rastrearía el estado de los recursos para ese ambiente.
 
 ####   1.3.3. Control de versiones y repositorios
 
